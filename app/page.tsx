@@ -52,6 +52,10 @@ export default function Home() {
                     fill
                     alt=""
                   />
+                  <img
+                    src="./verified.svg"
+                    className="absolute -top-4 -right-4 h-8 w-8"
+                  />
                 </div>
                 <p className="text-white">Bitcoin Address: {data}</p>
               </div>

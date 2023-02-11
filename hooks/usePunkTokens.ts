@@ -2,7 +2,8 @@ import { useTokens } from "@reservoir0x/reservoir-kit-ui";
 
 export function usePunkTokens() {
   const { data: tokens } = useTokens({
-    collection: "0x82c7a8f707110f5fbb16184a5933e9f78a34c6ab",
+    // collection: "0x82c7a8f707110f5fbb16184a5933e9f78a34c6ab",
+    tokens: "0x82c7a8f707110f5fbb16184a5933e9f78a34c6ab:40266239799564391",
     limit: 40,
   });
 
