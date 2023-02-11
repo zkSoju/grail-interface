@@ -41,7 +41,7 @@ export default function Home() {
     });
 
     setCalled(true);
-  }, [tokens]);
+  }, [tokens, called]);
 
   return (
     <div>
@@ -64,7 +64,7 @@ export default function Home() {
                   alt=""
                 />
                 <div className="flex-col items-start justify-start">
-                  <p className="text-white">Bitcoin Punk #2358</p>
+                  <p className="text-white">{token?.token?.name}</p>
                   <p className="text-white/50">3.7 ETH</p>
                   <p className="text-white/50">
                     {data?.[id] ? "Verified" : "Fake"}
