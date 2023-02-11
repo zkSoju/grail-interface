@@ -3,6 +3,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
+        adhesion: "Adhesion",
         wagmi: "Gilroy",
       },
     },

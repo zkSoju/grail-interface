@@ -7,6 +7,12 @@ p {
 }
 
 @font-face {
+  src: url(/Adhesion-Regular.ttf);
+  font-weight: 400;
+  font-family: "Adhesion";
+}
+
+@font-face {
   src: url(/Gilroy-Thin.ttf);
   font-weight: 100;
   font-family: "Gilroy";
