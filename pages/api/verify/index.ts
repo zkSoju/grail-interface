@@ -23,6 +23,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       let lowestInscriptionID;
       let lowestInscriptionHash;
       let loading = true;
+      let verified = false;
 
       fetch(
         "https://api2.emblemvault.io/meta/" +
@@ -32,15 +33,15 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           method: "GET",
         }
       )
-        .then((res) => res.json())
-        .then((res) => {
-          const btcCoin = res.addresses.find(
+        .then((data) => data.json())
+        .then((data) => {
+          const btcCoin = data.addresses.find(
             (coin: any) => coin.coin === "BTC"
           );
           console.log("Emblem vault owner = ", btcCoin.address);
           vaultOwner = btcCoin.address;
 
-          let punkID = res.name.match(/#\d+/);
+          let punkID = data.name.match(/#\d+/);
           punkID = punkID[0].replace("#", "");
           punkID = punkID;
           console.log("Punk ID = ", punkID);
@@ -48,25 +49,25 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           fetch("https://api.bitcoinpunks.com/punk-inscriptions.json", {
             method: "GET",
           })
-            .then((res) => res.json())
-            .then((res) => {
+            .then((data) => data.json())
+            .then((data) => {
               //const btcCoin = res.addresses.find((coin) => coin.coin === "BTC");
-              console.log("Lowest inscription ID = ", res[punkID].lowest);
+              console.log("Lowest inscription ID = ", data[punkID].lowest);
               console.log(
                 "Lowest inscription TX = ",
-                res[punkID].hashes[res[punkID].lowest]
+                data[punkID].hashes[data[punkID].lowest]
               );
-              lowestInscriptionID = res[punkID].lowest;
-              lowestInscriptionHash = res[punkID].hashes[res[punkID].lowest];
+              lowestInscriptionID = data[punkID].lowest;
+              lowestInscriptionHash = data[punkID].hashes[data[punkID].lowest];
 
               fetch(
                 "https://ordinals.com/inscription/" +
-                  res[punkID].hashes[res[punkID].lowest],
+                  data[punkID].hashes[data[punkID].lowest],
                 {
                   method: "GET",
                 }
               )
-                .then((res) => res.text())
+                .then((data) => data.text())
                 .then((data) => {
                   //console.log(data);
 
@@ -78,18 +79,17 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                   loading = false;
 
                   if (inscriptionOwner == vaultOwner) {
-                    console.log("LEGIT! *****");
+                    verified = true;
                   } else {
-                    console.log("FAKE! ******");
+                    verified = false;
                   }
-                })
-                .catch((error) => {
-                  console.error(error);
+
+                  return res.status(201).json({
+                    verified,
+                  });
                 });
             });
         });
-
-      return res.status(201).json("OK");
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(422).json(error.issues);
