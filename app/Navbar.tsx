@@ -7,7 +7,7 @@ const Navbar = () => {
   return (
     <div className="w-full px-48">
       <div className="flex w-full items-center justify-center border-b border-white/5 px-8 py-4">
-        <p className="font-adhesion text-base text-white">grail</p>
+        <p className="font-adhesion text-base text-white">grailpunks</p>
       </div>
     </div>
   );

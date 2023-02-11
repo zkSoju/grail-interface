@@ -4,13 +4,12 @@ import Image from "next/image";
 import { FaGithub } from "react-icons/fa";
 import { useTokens } from "@reservoir0x/reservoir-kit-ui";
 import { useEffect, useState } from "react";
+import { usePunkTokens } from "@/hooks/usePunkTokens";
 
 export default function Home() {
   const [data, setData] = useState(null);
-  const { data: tokens } = useTokens({
-    tokens: "0x82c7a8f707110f5fbb16184a5933e9f78a34c6ab:40266239799564391",
-    limit: 40,
-  });
+
+  const tokens = usePunkTokens();
 
   useEffect(() => {
     if (!tokens) return;
@@ -35,16 +34,24 @@ export default function Home() {
 
   return (
     <div>
-      <div className="relative z-10 flex min-h-screen w-full items-start justify-center pt-28">
+      <div className="relative z-10 flex min-h-screen w-full items-start justify-center">
         <div className="flex flex-col items-start p-4">
           <div className="grid grid-cols-6 gap-16">
-            {tokens?.map((token) => (
+            {tokens?.map((token, id) => (
               <div
                 key={token?.token?.tokenId}
                 className="flex flex-col items-start space-y-8"
               >
                 <div className="relative aspect-square h-full w-full">
-                  <Image src={token?.token?.image ?? ""} fill alt="" />
+                  <Image
+                    src={token?.token?.image ?? ""}
+                    style={{ transform: "translate3d(0, 0, 0)" }}
+                    loading={id < 10 ? "eager" : "lazy"}
+                    // placeholder="blur"
+                    // blurDataURL={token?.token?.image ?? ""}
+                    fill
+                    alt=""
+                  />
                 </div>
                 <p className="text-white">Bitcoin Address: {data}</p>
               </div>
