@@ -16,25 +16,80 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
       const payload = tokenSchema.parse(body);
 
-      console.log(payload);
+      let vaultOwner = "";
+      let inscriptionOwner;
+      let tokenID;
+      let punkID;
+      let lowestInscriptionID;
+      let lowestInscriptionHash;
+      let loading = true;
 
-      const filePath = path.join(process.cwd(), "json");
-      const jsonData = await fs.readFile(
-        filePath + "/punk-inscriptions.json",
-        "utf-8"
-      );
-      const objectData = JSON.parse(jsonData);
+      fetch(
+        "https://api2.emblemvault.io/meta/" +
+          payload.tokenId +
+          "?experimental=true",
+        {
+          method: "GET",
+        }
+      )
+        .then((res) => res.json())
+        .then((res) => {
+          const btcCoin = res.addresses.find(
+            (coin: any) => coin.coin === "BTC"
+          );
+          console.log("Emblem vault owner = ", btcCoin.address);
+          vaultOwner = btcCoin.address;
 
-      const inscriptionId =
-        "96dd786aba618a138ae679e09f3db02366a917f69c617cdac8e8b77a2b8d7c0ai0";
+          let punkID = res.name.match(/#\d+/);
+          punkID = punkID[0].replace("#", "");
+          punkID = punkID;
+          console.log("Punk ID = ", punkID);
 
-      const ordinalData = await fetch(
-        `https://ordapi.xyz/inscription/${inscriptionId}`
-      );
+          fetch("https://api.bitcoinpunks.com/punk-inscriptions.json", {
+            method: "GET",
+          })
+            .then((res) => res.json())
+            .then((res) => {
+              //const btcCoin = res.addresses.find((coin) => coin.coin === "BTC");
+              console.log("Lowest inscription ID = ", res[punkID].lowest);
+              console.log(
+                "Lowest inscription TX = ",
+                res[punkID].hashes[res[punkID].lowest]
+              );
+              lowestInscriptionID = res[punkID].lowest;
+              lowestInscriptionHash = res[punkID].hashes[res[punkID].lowest];
 
-      const ordinal = await ordinalData.json();
+              fetch(
+                "https://ordinals.com/inscription/" +
+                  res[punkID].hashes[res[punkID].lowest],
+                {
+                  method: "GET",
+                }
+              )
+                .then((res) => res.text())
+                .then((data) => {
+                  //console.log(data);
 
-      return res.status(201).json(ordinal.address);
+                  const address = data.match(
+                    /<dt>address<\/dt>\s*<dd class=monospace>(.*?)<\/dd>/
+                  )?.[1];
+                  console.log("Inscription owner = ", address);
+                  inscriptionOwner = address;
+                  loading = false;
+
+                  if (inscriptionOwner == vaultOwner) {
+                    console.log("LEGIT! *****");
+                  } else {
+                    console.log("FAKE! ******");
+                  }
+                })
+                .catch((error) => {
+                  console.error(error);
+                });
+            });
+        });
+
+      return res.status(201).json("OK");
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(422).json(error.issues);
